@@ -1,0 +1,9 @@
+Metadata-Version: 2.1
+Name: bioio
+Version: 0.1.0
+Summary: BioIO
+Home-page: http://github.com/mhorlacher/bioio
+Author: Marc Horlacher
+Author-email: marc.horlacher@gmail.com
+License: MIT
+License-File: LICENSE

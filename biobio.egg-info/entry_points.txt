@@ -1,0 +1,2 @@
+[console_scripts]
+rbpnet = rbpnet.__main__:main

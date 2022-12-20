@@ -1,0 +1,2 @@
+[console_scripts]
+bioio = bioio.__main__:main

@@ -1,0 +1,25 @@
+# !import numpy
+
+version: '0.1'
+
+loader:
+  !Loader:Bed
+    args:
+      filepath: 'peaks.crosslink.slop-200b.bed'
+      add_meta: True
+
+data_structure:
+  inputs: # sequence
+    !Connector:Fasta
+      args:
+        filepath: /home/marc/data/GRCh38/grch38.fasta
+      spec:
+        shape: [null, 4]
+        dtype: int8
+  outputs: # sequence
+    !Connector:Fasta
+      args:
+        filepath: /home/marc/data/GRCh38/grch38.fasta
+      spec:
+        shape: [null, 4]
+        dtype: int8
