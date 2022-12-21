@@ -1,25 +1,31 @@
-# !import numpy
-
-version: '0.1'
+version: 0.1.0
 
 loader:
   !Loader:Bed
     args:
       filepath: 'peaks.crosslink.slop-200b.bed'
-      add_meta: True
+
+# transforms:
+
+
+bla:
+  - fasta: &fasta
+      !Connector:IdentityBedName # Formatted name of the sample, i.e. BED row
+        args:
+          format_string: '{chrom}:{start}-{end}:{strand}:{name}'
+        spec:
+          shape: []
+          dtype: string
+  - fasta2: &fasta2
+      !Connector:IdentityBedName # Formatted name of the sample, i.e. BED row
+        args:
+          format_string: '{chrom}:{start}-{end}:{strand}:{name}'
+        spec:
+          shape: []
+          dtype: string
 
 data_structure:
-  inputs: # sequence
-    !Connector:Fasta
-      args:
-        filepath: /home/marc/data/GRCh38/grch38.fasta
-      spec:
-        shape: [null, 4]
-        dtype: int8
-  outputs: # sequence
-    !Connector:Fasta
-      args:
-        filepath: /home/marc/data/GRCh38/grch38.fasta
-      spec:
-        shape: [null, 4]
-        dtype: int8
+  meta:
+    one: *fasta
+    two: *fasta
+    three: *fasta2

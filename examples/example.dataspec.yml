@@ -49,37 +49,3 @@ data_structure:
           spec:
             shape: [null, ]
             dtype: float32
-    # TaskTwo:
-    #   total: 
-    #     !StrandedBigWig
-    #       args:
-    #         bigwig_plus: 'bigWig/total/counts.pos.bw'
-    #         bigwig_minus: 'bigWig/total/counts.neg.bw'
-    #       spec:
-    #         shape: [null, ]
-    #         dtype: float32
-    #   control: 
-    #     !StrandedBigWig
-    #       args:
-    #         bigwig_plus: 'bigWig/control/counts.pos.bw'
-    #         bigwig_minus: 'bigWig/control/counts.neg.bw'
-    #       spec:
-    #         shape: [null, ]
-    #         dtype: float32
-    # TaskThree:
-    #   total: 
-    #     !StrandedBigWig
-    #       args:
-    #         bigwig_plus: 'bigWig/total/counts.pos.bw'
-    #         bigwig_minus: 'bigWig/total/counts.neg.bw'
-    #       spec:
-    #         shape: [null, ]
-    #         dtype: float32
-    #   control: 
-    #     !StrandedBigWig
-    #       args:
-    #         bigwig_plus: 'bigWig/control/counts.pos.bw'
-    #         bigwig_minus: 'bigWig/control/counts.neg.bw'
-    #       spec:
-    #         shape: [null, ]
-    #         dtype: float32
