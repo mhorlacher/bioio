@@ -2,7 +2,7 @@
 import click
 
 # %%
-from bioio.bin import serialize
+from .bin import serialize
 
 # %%
 @click.group()

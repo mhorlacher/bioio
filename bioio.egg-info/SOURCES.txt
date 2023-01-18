@@ -22,3 +22,4 @@ bioio/connectors/identity.py
 bioio/loaders/__init__.py
 bioio/loaders/base.py
 bioio/loaders/bed.py
+bioio/transforms/__init__.py

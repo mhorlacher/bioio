@@ -5,34 +5,38 @@ loader:
     args:
       filepath: 'peaks.crosslink.slop-200b.bed'
 
-# transforms:
-#   - onehot: &onehot
-#       !Transform:SomeTransform
-#         args:
-#           foo: bar
-#         spec:
-#           shape: []
-#           dtype: string
-
-data_structure:
-  meta:
-    !Connector:IdentityBedName # Formatted name of the sample, i.e. BED row
-      args:
-        format_string: '{chrom}:{start}-{end}:{strand}:{name}'
-      spec:
-        shape: []
-        dtype: string
-  inputs: 
-    !Connector:Fasta # RNA/DNA sequence
+transforms:
+  - !Connector:Fasta &ex_trans # RNA/DNA sequence
       args:
         filepath: /home/marc/data/GRCh38/grch38.fasta
       spec:
         shape: [null, 4]
-        dtype: int8
-      transforms:
-        - *onehot
+        dtype: int8 
+  - !Connector:Fasta &ex_trans2 # RNA/DNA sequence
+      args:
+        filepath: /home/marc/data/GRCh38/grch38.fasta
+      spec:
+        shape: [null, 4]
+        dtype: int8 
+
+data_structure:
+  # meta:
+  #   !Connector:IdentityBedName # Formatted name of the sample, i.e. BED row
+  #     args:
+  #       format_string: '{chrom}:{start}-{end}:{strand}:{name}'
+  #     spec:
+  #       shape: []
+  #       dtype: string
+  inputs:
+    input:
+      !Connector:Fasta # RNA/DNA sequence
+        args:
+          filepath: /home/marc/data/GRCh38/grch38.fasta
+        spec:
+          shape: [null, 4]
+          dtype: int8
   outputs:
-    TaskOne:
+    SomeTask:
       total: 
         !Connector:StrandedBigWig
           args:
@@ -41,6 +45,8 @@ data_structure:
           spec:
             shape: [null, ]
             dtype: float32
+          transforms:
+            - *ex_trans
       control: 
         !Connector:StrandedBigWig
           args:
@@ -49,37 +55,3 @@ data_structure:
           spec:
             shape: [null, ]
             dtype: float32
-    # TaskTwo:
-    #   total: 
-    #     !StrandedBigWig
-    #       args:
-    #         bigwig_plus: 'bigWig/total/counts.pos.bw'
-    #         bigwig_minus: 'bigWig/total/counts.neg.bw'
-    #       spec:
-    #         shape: [null, ]
-    #         dtype: float32
-    #   control: 
-    #     !StrandedBigWig
-    #       args:
-    #         bigwig_plus: 'bigWig/control/counts.pos.bw'
-    #         bigwig_minus: 'bigWig/control/counts.neg.bw'
-    #       spec:
-    #         shape: [null, ]
-    #         dtype: float32
-    # TaskThree:
-    #   total: 
-    #     !StrandedBigWig
-    #       args:
-    #         bigwig_plus: 'bigWig/total/counts.pos.bw'
-    #         bigwig_minus: 'bigWig/total/counts.neg.bw'
-    #       spec:
-    #         shape: [null, ]
-    #         dtype: float32
-    #   control: 
-    #     !StrandedBigWig
-    #       args:
-    #         bigwig_plus: 'bigWig/control/counts.pos.bw'
-    #         bigwig_minus: 'bigWig/control/counts.neg.bw'
-    #       spec:
-    #         shape: [null, ]
-    #         dtype: float32

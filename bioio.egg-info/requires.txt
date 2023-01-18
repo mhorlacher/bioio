@@ -1,2 +1,6 @@
 pyyaml
 click
+numpy
+pandas
+tensorflow
+tensorflow_datasets
