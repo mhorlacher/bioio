@@ -1,0 +1,73 @@
+version: 0.1.0
+
+source:
+  !Iterable &bed
+    object: bioflow.io.sources.Bed
+    args:
+      filepath: peaks/peaks.crosslink.slop-200b.bed
+
+data:
+  inputs:
+    sequence:
+      !Transform
+        object: bioflow.io.transforms.Fasta
+        input:
+          *bed
+        args:
+          filepath: /home/marc/data/GRCh38/grch38.fasta
+  outputs:
+    SomeTask:
+      total:
+        !Transform
+          object: bioflow.io.transforms.StrandedBigWig
+          input:
+            *bed
+          args:
+            bigwig_plus: bigWig/total/counts.pos.bw
+            bigwig_minus: bigWig/total/counts.neg.bw
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  # meta:
+  #   one:
+  #     !Transform &one
+  #       transform: bioflow.io.transforms.ExampleMultiplyNumber
+  #       input:
+  #         *source
+  #       args:
+  #         factor: 2
+  #   two:
+  #     !Transform &two
+  #       transform: bioflow.io.transforms.ExampleAddNumber
+  #       input:
+  #         *one
+  #       args:
+  #         number: 3
+  #   three:
+  #     !Transform &three
+  #       transform: bioflow.io.transforms.ExampleStaticNumber
+  #       input:
+  #         one: *one
+  #         two: *two
+  #       args:
+  #         number: 3
+
+#   inputs:
+#     three:
+#       *three

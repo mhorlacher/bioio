@@ -1,29 +1,46 @@
 # %%
 import click
-# Add tqdm, once loader.__len__ has been implemented
 import tqdm
 import tensorflow as tf
 
-import bioio
+from ..dataspec.loader import load_biospec
+from ..dataspec.dataset_ops import dataset_to_tensor_features, features_to_json_file, serialize_dataset
 
 # %%
 @click.command()
-@click.argument('dataspec')
-@click.option('--compression', type=str, default=None)
+@click.argument('biospec')
+@click.option('--gzip', is_flag=True, default=False)
 @click.option('--compression-level', type=int, default=None)
-@click.option('-o', '--output', required=True, type=str)
-def main(dataspec, compression, compression_level, output):
-    loader = bioio.load_dataspec(dataspec)
-    loader.summary()
+@click.option('-t', '--out-tfrecord', required=True, type=str)
+@click.option('-f', '--out-features', type=str, default=None)
+def main(biospec, gzip, compression_level, out_tfrecord, out_features):
+    dataset = load_biospec(biospec)
+    print(dataset.element_spec)
     
+    # compress tfrecords to gzip, if flag '--gzip' is set
     tfrecord_options = tf.io.TFRecordOptions(
-        compression_type = compression.upper() if compression else None,
-        compression_level = compression_level.upper() if compression else None,
+        compression_type = 'GZIP' if gzip else None,
+        compression_level = compression_level if gzip else None,
     )
     
-    with tf.io.TFRecordWriter(output, tfrecord_options) as tfrecord, tqdm.tqdm(total=len(loader)) as pbar:
-        for example in iter(loader):
-            tfrecord.write(loader.serialize(example))
+    # determine dataset cardinality 
+    cardinality = dataset.cardinality()
+    cardinality = int(cardinality) if cardinality > 0 else None
+
+    with tf.io.TFRecordWriter(out_tfrecord, tfrecord_options) as tf_writer, tqdm.tqdm(total=cardinality) as pbar:
+        features = dataset_to_tensor_features(dataset, encoding='zlib')
+
+        # write features spec to json file
+        if out_features is None:
+            out_features = out_tfrecord.removesuffix('.gz') + '.features.json'
+        features_to_json_file(features, out_features)
+
+        # use features to serialize examples to binary string
+        serialized_dataset = serialize_dataset(dataset, features)
+
+        # write serialized examples to tfrecord
+        for serialized_example in serialized_dataset:
+            tf_writer.write(serialized_example)
             pbar.update(1)
 
 # %%
