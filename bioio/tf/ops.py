@@ -18,7 +18,7 @@ def dataset_from_iterable(py_iterable):
 # def tensorspec_to_tensor_feature(tensorspec, **kwargs):
 #     return tfds.features.Tensor(shape=tensorspec.shape, dtype=tensorspec.dtype, **kwargs)
 def tensorspec_to_tensor_feature(tensorspec, encoding=None, **kwargs):
-    if tensorspec.dtype is tf.string:
+    if tensorspec.dtype is tf.string or encoding is None:
         encoding = tfds.features.Encoding.NONE
 
     return tfds.features.Tensor(shape=tensorspec.shape, dtype=tensorspec.dtype, encoding=encoding, **kwargs)
