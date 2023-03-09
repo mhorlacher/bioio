@@ -1,3 +1,3 @@
 # %%
-from .ops import load_tfrecord, dataset_to_tfrecord, serialize_dataset, dataset_from_iterable
-from .index import load_indexed_tfrecord
+from .ops import load_tfrecord, dataset_to_tfrecord, dataset_from_iterable
+from .index import index_tfrecord, load_indexed_tfrecord
