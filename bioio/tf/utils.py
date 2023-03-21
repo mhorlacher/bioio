@@ -15,8 +15,6 @@ def dataset_from_iterable(py_iterable):
     return tf.data.Dataset.from_generator(lambda: iter(py_iterable), output_types=output_types)
 
 # %%
-# def tensorspec_to_tensor_feature(tensorspec, **kwargs):
-#     return tfds.features.Tensor(shape=tensorspec.shape, dtype=tensorspec.dtype, **kwargs)
 def tensorspec_to_tensor_feature(tensorspec, encoding=None, **kwargs):
     if tensorspec.dtype is tf.string or encoding is None:
         encoding = tfds.features.Encoding.NONE
@@ -70,10 +68,6 @@ def load_tfrecord(tfrecord_file, features_file=None, deserialize=True):
         dataset = deserialize_dataset(dataset, features)
 
     return dataset
-
-# # %%
-# def index_dataset(dataset):
-#     pass
 
 # %%
 def tensor_to_numpy(tensor):

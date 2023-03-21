@@ -5,7 +5,7 @@ import yaml
 import tensorflow as tf
 
 # %%
-from bioio.tf.ops import dataset_from_iterable
+from bioio.tf.utils import dataset_from_iterable
 
 # %%
 def import_object_from_string(import_string):

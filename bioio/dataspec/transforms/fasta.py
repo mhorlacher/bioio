@@ -2,7 +2,7 @@
 import pysam
 import tensorflow as tf
 
-from bioio.tf.ops import better_py_function_kwargs
+from bioio.tf.utils import better_py_function_kwargs
 from bioio.utils import sequence2onehot, reverse_complement
 
 # %%

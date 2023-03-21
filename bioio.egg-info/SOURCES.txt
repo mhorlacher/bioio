@@ -25,5 +25,9 @@ bioio/dataspec/transforms/__init__.py
 bioio/dataspec/transforms/bigwig.py
 bioio/dataspec/transforms/fasta.py
 bioio/tf/__init__.py
+bioio/tf/gfile.py
 bioio/tf/index.py
-bioio/tf/ops.py
+bioio/tf/utils.py
+bioio/torch/__init__.py
+bioio/torch/datasets.py
+bioio/torch/utils.py

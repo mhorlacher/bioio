@@ -5,7 +5,7 @@ import tensorflow as tf
 import numpy as np
 import pyBigWig
 
-from bioio.tf.ops import better_py_function_kwargs
+from bioio.tf.utils import better_py_function_kwargs
 
 # %%
 def nan_to_zero(x):
