@@ -3,7 +3,7 @@ import click
 
 # %%
 from . import __version__
-from .bin import serialize, legacy_serialize, biospec2dot, tfrecord2idx, merge_tfrecords
+from .bin import serialize, biospec2dot, tfrecord2idx, merge_tfrecords
 
 # %%
 @click.group()
