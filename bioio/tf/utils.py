@@ -137,3 +137,7 @@ def better_py_function_kwargs(Tout, numpy=True, decode_bytes=True):
 #                 return func(inp)
 #         return lambda x: py_function_nest(func_wrapper, inp=[x], Tout=output_types)
 #     return decorator
+
+# %%
+def multi_hot(x, depth):
+    return tf.reduce_sum(tf.one_hot(x, depth=depth, dtype=tf.int64), axis=0)

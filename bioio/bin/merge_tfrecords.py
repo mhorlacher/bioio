@@ -3,8 +3,8 @@ import click
 import tqdm
 import tensorflow as tf
 
-from ..dataspec import load_tfrecord
-from ..dataspec.dataset_ops import dataset_to_tensor_features, features_to_json_file, serialize_dataset
+from bioio.tf import load_tfrecord
+from bioio.tf.utils import dataset_to_tensor_features, features_to_json_file, serialize_dataset
 
 # %%
 def merge_dicts(dicts):

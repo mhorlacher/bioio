@@ -3,8 +3,8 @@ import click
 import tqdm
 import tensorflow as tf
 
-from ..dataspec.loader import load_biospec
-from ..dataspec.dataset_ops import dataset_to_tensor_features, features_to_json_file, serialize_dataset
+from bioio import load_biospec
+from bioio.tf.utils import dataset_to_tensor_features, features_to_json_file, serialize_dataset
 
 # %%
 @click.command()

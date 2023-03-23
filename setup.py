@@ -18,7 +18,7 @@ setup(name='bioio',
       include_package_data=False,
       entry_points = {
             'console_scripts': [
-                  'bioflow=bioflow.__main__:main',
+                  'bioio=bioio.__main__:main',
             ],
       },
       zip_safe=False)
