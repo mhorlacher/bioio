@@ -1,2 +1,0 @@
-[console_scripts]
-bioflow = bioflow.__main__:main
