@@ -3,7 +3,7 @@ import sys, math
 
 import tensorflow as tf
 import numpy as np
-import pyBigWig
+# import pyBigWig
 
 from bioio.tf.utils import better_py_function_kwargs
 
@@ -17,6 +17,11 @@ class BigWig():
     tensor_spec = tf.TensorSpec(shape=(None, ), dtype=tf.float32)
 
     def __init__(self, bigwig_filepath) -> None:
+        try:
+            import pyBigWig
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError('Please install pyBigWig. See https://github.com/deeptools/pyBigWig')
+
         self._bigWig = pyBigWig.open(bigwig_filepath)
     
     def values(self, chrom, start, end, **kwargs):

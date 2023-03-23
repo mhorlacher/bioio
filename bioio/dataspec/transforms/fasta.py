@@ -24,8 +24,8 @@ class Fasta():
         
         return tf.cast(sequence2onehot(sequence), self.tensor_spec.dtype)
 
-    def __call__(self, kwargs):
+    def __call__(self, example):
         # return better_py_function_kwargs(Tout=tf.int8)(self.fetch)(kwargs)
-        tensor = better_py_function_kwargs(Tout=self.tensor_spec)(self.fetch)(kwargs)
+        tensor = better_py_function_kwargs(Tout=self.tensor_spec)(self.fetch)(example)
         tensor.set_shape(self.tensor_spec.shape)
         return tensor
