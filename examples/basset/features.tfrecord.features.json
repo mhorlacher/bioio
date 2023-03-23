@@ -21,6 +21,21 @@
           }
         }
       },
+      "meta": {
+        "pythonClassName": "tensorflow_datasets.core.features.features_dict.FeaturesDict",
+        "featuresDict": {
+          "features": {
+            "name": {
+              "pythonClassName": "tensorflow_datasets.core.features.tensor_feature.Tensor",
+              "tensor": {
+                "shape": {},
+                "dtype": "string",
+                "encoding": "none"
+              }
+            }
+          }
+        }
+      },
       "inputs": {
         "pythonClassName": "tensorflow_datasets.core.features.features_dict.FeaturesDict",
         "featuresDict": {

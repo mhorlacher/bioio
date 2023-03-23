@@ -1,7 +1,23 @@
 # %%
 import tensorflow as tf
 
-from bioio.tf.utils import multi_hot
+from bioio.tf.utils import multi_hot, better_py_function_kwargs
+
+# %%
+class BedFormatName:
+    tensor_spec = tf.TensorSpec(shape=(), dtype=tf.string)
+
+    def __init__(self, format_string='{chrom}:{start}-{end}:{strand}') -> None:
+        self.format_string = format_string
+    
+    def format(self, **kwargs):
+        return self.format_string.format(**kwargs)
+
+    def __call__(self, example) -> str:
+        tensor = better_py_function_kwargs(Tout=self.tensor_spec)(self.format)(example)
+        # tensor = self.format_string.format(**kwargs)
+        tensor.set_shape(self.tensor_spec.shape)
+        return tensor
 
 # %%
 class BedColumnSparseLabels:

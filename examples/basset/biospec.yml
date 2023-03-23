@@ -7,7 +7,12 @@ source:
       filepath: features.head-100.bed
 
 data:
-  # meta: *bed
+  meta: 
+    name: 
+      !Transform
+        object: bioio.dataspec.transforms.bed.BedFormatName
+        input:
+          *bed
   inputs:
     sequence:
       !Transform
