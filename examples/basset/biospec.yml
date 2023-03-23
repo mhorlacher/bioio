@@ -1,0 +1,27 @@
+version: 0.1.0
+
+source:
+  !Iterable &bed
+    object: bioio.dataspec.sources.Bed
+    args:
+      filepath: features.head-100.bed
+
+data:
+  # meta: *bed
+  inputs:
+    sequence:
+      !Transform
+        object: bioio.dataspec.transforms.Fasta
+        input:
+          *bed
+        args:
+          filepath: /home/marc/data/GRCh38/grch38.fasta
+  outputs:
+    labels:
+      !Transform
+        object: bioio.dataspec.transforms.bed.BedColumnSparseLabels
+        input:
+          *bed
+        args:
+          column: '6'
+          sep: ','
