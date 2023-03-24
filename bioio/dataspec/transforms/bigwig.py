@@ -27,20 +27,6 @@ class BigWig():
     def values(self, chrom, start, end, **kwargs):
         chrom, start, end = str(chrom), int(start), int(end) # not sure why this is needed, it worked locally with numpy.int32
         values = self._bigWig.values(chrom, start, end)
-        # try:
-        #     print(f'INFO: ({chrom},{start},{end})', file=sys.stderr)
-        #     print(f'INFO: ({type(chrom)},{type(start)},{type(end)})', file=sys.stderr)
-        #     values = self._bigWig.values(chrom, start, end)
-        # except RuntimeError as e:
-        #     # print(type(chrom), type(start), type(end))
-        #     # raise e
-        #     # TODO: Use logging module instead. This allows users to turn off warnings. 
-        #     tf.print(start)
-        #     print('WARNING: ' + str(e), file=sys.stderr)
-        #     print(f'WARNING: ({chrom},{start},{end})', file=sys.stderr)
-        #     print(f'WARNING: ({type(chrom)},{type(start)},{type(end)})', file=sys.stderr)
-        #     return [0.0]*(end-start)
-        
         values = [nan_to_zero(v) for v in values]        
         return tf.cast(values, self.tensor_spec.dtype)
 
