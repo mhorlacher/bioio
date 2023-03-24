@@ -1,8 +1,8 @@
 # %%
 import click
 
-from ..dataspec.loader import load_biospec
-from ..utils import flatten_dict
+from bioio.dataspec.loader import load_biospec
+from bioio.utils import flatten_dict
 
 # %%
 def unique_edges(dataset):

@@ -1,8 +1,0 @@
-tensorflow==2.11.0
-tensorflow_datasets
-pyBigWig
-pysam
-pandas
-click
-tqdm
-pyyaml

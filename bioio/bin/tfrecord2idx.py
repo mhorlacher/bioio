@@ -1,8 +1,8 @@
 # %%
 import click
 
-from ..dataspec.index import index_tfrecord
-from ..dataspec.dataset_ops import features_from_json_file
+from bioio.tf.index import index_tfrecord
+from bioio.tf.utils import features_from_json_file
 
 def deserialize_and_get_nested_values(proto, keys, features):
     x = features.deserialize_example(proto)

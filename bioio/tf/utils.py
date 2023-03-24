@@ -15,10 +15,8 @@ def dataset_from_iterable(py_iterable):
     return tf.data.Dataset.from_generator(lambda: iter(py_iterable), output_types=output_types)
 
 # %%
-# def tensorspec_to_tensor_feature(tensorspec, **kwargs):
-#     return tfds.features.Tensor(shape=tensorspec.shape, dtype=tensorspec.dtype, **kwargs)
 def tensorspec_to_tensor_feature(tensorspec, encoding=None, **kwargs):
-    if tensorspec.dtype is tf.string:
+    if tensorspec.dtype is tf.string or encoding is None:
         encoding = tfds.features.Encoding.NONE
 
     return tfds.features.Tensor(shape=tensorspec.shape, dtype=tensorspec.dtype, encoding=encoding, **kwargs)
@@ -70,10 +68,6 @@ def load_tfrecord(tfrecord_file, features_file=None, deserialize=True):
         dataset = deserialize_dataset(dataset, features)
 
     return dataset
-
-# # %%
-# def index_dataset(dataset):
-#     pass
 
 # %%
 def tensor_to_numpy(tensor):
@@ -143,3 +137,7 @@ def better_py_function_kwargs(Tout, numpy=True, decode_bytes=True):
 #                 return func(inp)
 #         return lambda x: py_function_nest(func_wrapper, inp=[x], Tout=output_types)
 #     return decorator
+
+# %%
+def multi_hot(x, depth):
+    return tf.reduce_sum(tf.one_hot(x, depth=depth, dtype=tf.int64), axis=0)
