@@ -5,14 +5,19 @@ import tensorflow as tf
 import tensorflow_datasets as tfds
 
 # %%
-def make_signature(structure):
+# def get_structure_types(structure):
+#     structure_tensor = tf.nest.map_structure(tf.constant, structure)
+#     return tf.nest.map_structure(lambda x: x.dtype, structure_tensor)
+
+def get_structure_signature(structure):
     structure_tensor = tf.nest.map_structure(tf.constant, structure)
-    return tf.nest.map_structure(lambda x: x.dtype, structure_tensor)
+    return tf.nest.map_structure(lambda x: tf.TensorSpec(shape=x.shape, dtype=x.dtype, name=None), structure_tensor)
 
 # %%
 def dataset_from_iterable(py_iterable):
-    output_types = make_signature(next(iter(py_iterable)))
-    return tf.data.Dataset.from_generator(lambda: iter(py_iterable), output_types=output_types)
+    output_signature = get_structure_signature(next(iter(py_iterable)))
+    print(output_signature)
+    return tf.data.Dataset.from_generator(lambda: iter(py_iterable), output_signature=output_signature)
 
 # %%
 def tensorspec_to_tensor_feature(tensorspec, encoding=None, **kwargs):
