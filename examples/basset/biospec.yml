@@ -1,10 +1,10 @@
 version: 0.1.0
 
 source:
-  !Iterable &bed
+  !PyIterable &bed
     object: bioio.dataspec.sources.Bed
     args:
-      filepath: features.head-100.bed
+      filepath: ./samples.bed
 
 data:
   meta: 
@@ -20,7 +20,7 @@ data:
         input:
           *bed
         args:
-          filepath: /home/marc/data/GRCh38/grch38.fasta
+          filepath: ../meta.data/chr19.fa
   outputs:
     labels:
       !Transform
