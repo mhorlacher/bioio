@@ -64,8 +64,8 @@ def serialize_dataset(dataset, features):
         yield features.serialize_example(tf.nest.map_structure(lambda e: e.numpy(), example))
 
 # %%
-def dataset_to_tfrecord(dataset, filepath):
-    features = dataset_to_tensor_features(dataset)
+def dataset_to_tfrecord(dataset, filepath, encoding='bytes'):
+    features = dataset_to_tensor_features(dataset, encoding=encoding)
     features_to_json_file(features, filepath + '.features.json')
 
     with tf.io.TFRecordWriter(filepath) as tfrecord_write:
