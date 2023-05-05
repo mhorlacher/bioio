@@ -1,5 +1,7 @@
 
 # %%
+import os
+
 import click
 import tqdm
 import tensorflow as tf
@@ -12,10 +14,17 @@ from bioio.tf.utils import dataset_to_tensor_features, features_to_json_file, se
 @click.argument('biospec')
 @click.option('--gzip', is_flag=True, default=False)
 @click.option('--gzip-compression-level', type=int, default=None)
-@click.option('--encoding', type=str, default='bytes')
+@click.option('--encoding', type=str, default=None)
+@click.option('-d', '--directory', type=str, default=None)
 @click.option('-t', '--out-tfrecord', required=True, type=str)
 @click.option('-f', '--out-features', type=str, default=None)
-def main(biospec, gzip, gzip_compression_level, encoding, out_tfrecord, out_features):
+def main(biospec, gzip, gzip_compression_level, encoding, out_tfrecord, out_features, directory):
+    if directory is not None:
+        # change working directory (all relative paths in biospec.yml will be relative to this directory)
+        if not os.path.isdir(directory):
+            raise ValueError(f"'{directory}' is not a directory.")
+        os.chdir(directory)
+
     dataset = load_biospec(biospec)
     print(dataset.element_spec)
     
