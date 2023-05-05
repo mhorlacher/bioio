@@ -1,3 +1,4 @@
+
 # %%
 import click
 import tqdm
@@ -11,7 +12,7 @@ from bioio.tf.utils import dataset_to_tensor_features, features_to_json_file, se
 @click.argument('biospec')
 @click.option('--gzip', is_flag=True, default=False)
 @click.option('--gzip-compression-level', type=int, default=None)
-@click.option('--encoding', type=str, default=None)
+@click.option('--encoding', type=str, default='bytes')
 @click.option('-t', '--out-tfrecord', required=True, type=str)
 @click.option('-f', '--out-features', type=str, default=None)
 def main(biospec, gzip, gzip_compression_level, encoding, out_tfrecord, out_features):
@@ -33,7 +34,7 @@ def main(biospec, gzip, gzip_compression_level, encoding, out_tfrecord, out_feat
 
         # write features spec to json file
         if out_features is None:
-            out_features = out_tfrecord.removesuffix('.gz') + '.features.json'
+            out_features = out_tfrecord + '.features.json'
         features_to_json_file(features, out_features)
 
         # use features to serialize examples to binary string
