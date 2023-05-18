@@ -1,6 +1,8 @@
 # %%
+import sys
 import json
 
+import tqdm
 import tensorflow as tf
 import tensorflow_datasets as tfds
 
@@ -181,3 +183,30 @@ def better_py_function_kwargs(Tout, numpy=True, decode_bytes=True):
 # %%
 def multi_hot(x, depth):
     return tf.reduce_sum(tf.one_hot(x, depth=depth, dtype=tf.int64), axis=0)
+
+# %%
+def estimate_record_size(tfrecords):
+    """
+    Estimate mean and standard deviation of TFRecord record sizes in bytes.
+    """
+
+    sizes = []
+    print('Estimating record size...', file=sys.stderr)
+    for record in tqdm.tqdm(tf.data.TFRecordDataset(tfrecords).as_numpy_iterator()):
+        sizes.append(tf.cast(sys.getsizeof(record), dtype=tf.float32))
+    return tf.math.reduce_mean(sizes), tf.math.reduce_std(sizes)
+
+# %%
+def get_max_buffer_size_for_target_memory(record_size_mean, record_size_std, memory_in_mb=1024):
+    """
+    Estimate the maximum viable buffer sizes for a given memory budget. 
+    """
+    return int(1000*1000*memory_in_mb / (record_size_mean + 2*record_size_std))
+
+# %%
+def get_max_buffer_size(tfrecords, memory_in_mb=1024):
+    """
+    Estimate the maximum viable buffer sizes for a given memory budget. 
+    """
+    record_size_mean, record_size_std = estimate_record_size(tfrecords)
+    return get_max_buffer_size_for_target_memory(record_size_mean, record_size_std, memory_in_mb)
