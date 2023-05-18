@@ -185,14 +185,18 @@ def multi_hot(x, depth):
     return tf.reduce_sum(tf.one_hot(x, depth=depth, dtype=tf.int64), axis=0)
 
 # %%
-def estimate_record_size(tfrecords):
+def estimate_record_size(tfrecords, take=None):
     """
     Estimate mean and standard deviation of TFRecord record sizes in bytes.
     """
 
+    dataset = load_tfrecord(tfrecords, deserialize=False)
+    if take is not None:
+        dataset = dataset.take(take)
+
     sizes = []
     print('Estimating record size...', file=sys.stderr)
-    for record in tqdm.tqdm(tf.data.TFRecordDataset(tfrecords).as_numpy_iterator()):
+    for record in tqdm.tqdm(dataset.as_numpy_iterator()):
         sizes.append(tf.cast(sys.getsizeof(record), dtype=tf.float32))
     return tf.math.reduce_mean(sizes), tf.math.reduce_std(sizes)
 
@@ -204,9 +208,9 @@ def get_max_buffer_size_for_target_memory(record_size_mean, record_size_std, mem
     return int(1000*1000*memory_in_mb / (record_size_mean + 2*record_size_std))
 
 # %%
-def get_max_buffer_size(tfrecords, memory_in_mb=1024):
+def get_max_buffer_size(tfrecords, memory_in_mb=1024, take=None):
     """
     Estimate the maximum viable buffer sizes for a given memory budget. 
     """
-    record_size_mean, record_size_std = estimate_record_size(tfrecords)
+    record_size_mean, record_size_std = estimate_record_size(tfrecords, take=take)
     return get_max_buffer_size_for_target_memory(record_size_mean, record_size_std, memory_in_mb)
