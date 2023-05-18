@@ -208,7 +208,7 @@ def get_max_buffer_size_for_target_memory(record_size_mean, record_size_std, mem
     return int(1000*1000*memory_in_mb / (record_size_mean + 2*record_size_std))
 
 # %%
-def get_max_buffer_size(tfrecords, memory_in_mb=1024, take=None):
+def estimate_max_buffer_size(tfrecords, memory_in_mb=1024, take=None):
     """
     Estimate the maximum viable buffer sizes for a given memory budget. 
     """
