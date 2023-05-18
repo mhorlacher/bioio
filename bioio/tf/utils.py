@@ -80,8 +80,12 @@ def deserialize_dataset(dataset, features):
     return dataset.map(features.deserialize_example)
 
 # %%
-def load_tfrecord(tfrecord_file, features_file=None, deserialize=True):
+def load_tfrecord(tfrecord_file, features_file=None, deserialize=True, shuffle=None):
     dataset = tf.data.TFRecordDataset([tfrecord_file])
+    if shuffle is not None:
+        # shuffle examples before deserializing
+        assert isinstance(shuffle, int)
+        dataset = dataset.shuffle(shuffle)
 
     if deserialize:
         if features_file is None:
