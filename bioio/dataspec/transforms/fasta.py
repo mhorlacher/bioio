@@ -3,19 +3,24 @@ import pysam
 import tensorflow as tf
 
 from bioio.tf.utils import better_py_function_kwargs
-from bioio.utils import sequence2onehot, reverse_complement
+from bioio.utils import sequence2onehot, reverse_complement, mask_noncanonical_bases
 
 # %%
 class Fasta():
     # tensor_spec = tf.TensorSpec(shape=(None, 4), dtype=tf.int8)
 
-    def __init__(self, filepath, to_onehot=True) -> None:
+    def __init__(self, filepath, to_onehot=True, mask_noncanonical_bases=True) -> None:
         self.to_onehot = to_onehot
+        self.mask_noncanonical_bases = mask_noncanonical_bases
         self._fasta = pysam.FastaFile(filepath)
         self.dtype = tf.int8 if to_onehot else tf.string
     
     def fetch(self, chrom, start, end, strand='+', **kwargs):
         sequence = self._fasta.fetch(chrom, start, end).upper()
+
+        if self.mask_noncanonical_bases:
+            # Everything except A, C, G, T will be mapped to N
+            sequence = mask_noncanonical_bases(sequence)
 
         if strand == '+':
             pass

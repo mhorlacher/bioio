@@ -1,6 +1,8 @@
 # %%
+import sys
 import json
 
+import tqdm
 import tensorflow as tf
 import tensorflow_datasets as tfds
 
@@ -80,14 +82,32 @@ def deserialize_dataset(dataset, features):
     return dataset.map(features.deserialize_example)
 
 # %%
-def load_tfrecord(tfrecord_file, features_file=None, deserialize=True):
-    dataset = tf.data.TFRecordDataset([tfrecord_file])
+def load_tfrecord(tfrecords, features_file=None, deserialize=True, shuffle=None):
+    if isinstance(tfrecords, str):
+        # backward compatibility, accept a single tfrecord file instead of a list of tfrecord files
+        tfrecords = [tfrecords]
+    dataset = tf.data.Dataset.from_tensor_slices(tfrecords)
+    dataset = dataset.interleave(lambda fp: tf.data.TFRecordDataset(fp), cycle_length=1, block_length=1, num_parallel_calls=tf.data.AUTOTUNE)
 
+    if shuffle is not None:
+        # shuffle examples before deserializing
+        assert isinstance(shuffle, int)
+        dataset = dataset.shuffle(shuffle)
+
+    # optimize IO
+    dataset = dataset.prefetch(tf.data.AUTOTUNE)
+
+    # desrialize examples using feature specification in auxiliary file
     if deserialize:
         if features_file is None:
-            features_file = tfrecord_file + '.features.json'
+            # if list of tfrecords is supplied but no features file, use features file of first tfrecord - this must exist
+            features_file = tfrecords[0] + '.features.json'
         features = features_from_json_file(features_file)
-        dataset = deserialize_dataset(dataset, features)
+
+        dataset = dataset.map(features.deserialize_example, num_parallel_calls=tf.data.AUTOTUNE)
+    
+    # optimize IO
+    dataset = dataset.prefetch(tf.data.AUTOTUNE)
 
     return dataset
 
@@ -163,3 +183,34 @@ def better_py_function_kwargs(Tout, numpy=True, decode_bytes=True):
 # %%
 def multi_hot(x, depth):
     return tf.reduce_sum(tf.one_hot(x, depth=depth, dtype=tf.int64), axis=0)
+
+# %%
+def estimate_record_size(tfrecords, take=None):
+    """
+    Estimate mean and standard deviation of TFRecord record sizes in bytes.
+    """
+
+    dataset = load_tfrecord(tfrecords, deserialize=False)
+    if take is not None:
+        dataset = dataset.take(take)
+
+    sizes = []
+    print('Estimating record size...', file=sys.stderr)
+    for record in tqdm.tqdm(dataset.as_numpy_iterator()):
+        sizes.append(tf.cast(sys.getsizeof(record), dtype=tf.float32))
+    return tf.math.reduce_mean(sizes), tf.math.reduce_std(sizes)
+
+# %%
+def get_max_buffer_size_for_target_memory(record_size_mean, record_size_std, memory_in_mb=1024):
+    """
+    Estimate the maximum viable buffer sizes for a given memory budget. 
+    """
+    return int(1000*1000*memory_in_mb / (record_size_mean + 2*record_size_std))
+
+# %%
+def estimate_max_buffer_size(tfrecords, memory_in_mb=1024, take=None):
+    """
+    Estimate the maximum viable buffer sizes for a given memory budget. 
+    """
+    record_size_mean, record_size_std = estimate_record_size(tfrecords, take=take)
+    return get_max_buffer_size_for_target_memory(record_size_mean, record_size_std, memory_in_mb)
