@@ -1,0 +1,32 @@
+version: 0.1.0
+
+source:
+  !PyIterable &bed
+    object: bioio.dataspec.sources.Bed
+    args:
+      filepath: ./samples.bed
+
+data:
+  meta: 
+    name: 
+      !Transform
+        object: bioio.dataspec.transforms.bed.BedFormatName
+        input:
+          *bed
+  inputs:
+    sequence:
+      !Transform
+        object: bioio.dataspec.transforms.Fasta
+        input:
+          *bed
+        args:
+          filepath: ../meta.data/chr19.fa
+  outputs:
+    labels:
+      !Transform
+        object: bioio.dataspec.transforms.bed.BedColumnSparseLabels
+        input:
+          *bed
+        args:
+          column: '6'
+          sep: ','

@@ -27,3 +27,8 @@ def sequence2int(sequence, mapping=base2int):
 # %%
 def sequence2onehot(sequence, mapping=base2int):
     return tf.one_hot(sequence2int(sequence, mapping), depth=4)
+
+# %%
+def mask_noncanonical_bases(sequence):
+    return ''.join([base if base in base2int else 'N' for base in sequence])
+
