@@ -1,18 +1,32 @@
 # %%
+import sys
 import json
 
+import tqdm
 import tensorflow as tf
 import tensorflow_datasets as tfds
 
 # %%
-def make_signature(structure):
+# def get_structure_types(structure):
+#     structure_tensor = tf.nest.map_structure(tf.constant, structure)
+#     return tf.nest.map_structure(lambda x: x.dtype, structure_tensor)
+
+def get_structure_signature(structure):
     structure_tensor = tf.nest.map_structure(tf.constant, structure)
-    return tf.nest.map_structure(lambda x: x.dtype, structure_tensor)
+    return tf.nest.map_structure(lambda x: tf.TensorSpec(shape=x.shape, dtype=x.dtype, name=None), structure_tensor)
+
+# %%
+def get_generalized_structure_signature(structure):
+    structure_tensor = tf.nest.map_structure(tf.convert_to_tensor, structure)
+    # print(structure_tensor)
+    return tf.nest.map_structure(lambda x: tf.TensorSpec(shape=[None]*len(x.shape), dtype=x.dtype, name=None), structure_tensor)
 
 # %%
 def dataset_from_iterable(py_iterable):
-    output_types = make_signature(next(iter(py_iterable)))
-    return tf.data.Dataset.from_generator(lambda: iter(py_iterable), output_types=output_types)
+    # output_signature = get_structure_signature(next(iter(py_iterable)))
+    output_signature = get_generalized_structure_signature(next(iter(py_iterable)))
+    # print(output_signature)
+    return tf.data.Dataset.from_generator(lambda: iter(py_iterable), output_signature=output_signature)
 
 # %%
 def tensorspec_to_tensor_feature(tensorspec, encoding=None, **kwargs):
@@ -22,11 +36,21 @@ def tensorspec_to_tensor_feature(tensorspec, encoding=None, **kwargs):
     return tfds.features.Tensor(shape=tensorspec.shape, dtype=tensorspec.dtype, encoding=encoding, **kwargs)
 
 # %%
+# def dataset_to_tensor_features(dataset, **kwargs):
+#     return tfds.features.FeaturesDict(
+#         tf.nest.map_structure(
+#             lambda spec: tensorspec_to_tensor_feature(spec, **kwargs), 
+#             dataset.element_spec))
+
+# %%
 def dataset_to_tensor_features(dataset, **kwargs):
+    first_example = next(iter(dataset))
+    # first_example_signature = get_structure_signature(first_example)
+    first_example_signature = get_generalized_structure_signature(first_example)
     return tfds.features.FeaturesDict(
         tf.nest.map_structure(
             lambda spec: tensorspec_to_tensor_feature(spec, **kwargs), 
-            dataset.element_spec))
+            first_example_signature))
 
 # %%
 def features_to_json_file(features, filepath, indent=2):
@@ -45,8 +69,8 @@ def serialize_dataset(dataset, features):
         yield features.serialize_example(tf.nest.map_structure(lambda e: e.numpy(), example))
 
 # %%
-def dataset_to_tfrecord(dataset, filepath):
-    features = dataset_to_tensor_features(dataset)
+def dataset_to_tfrecord(dataset, filepath, encoding='bytes'):
+    features = dataset_to_tensor_features(dataset, encoding=encoding)
     features_to_json_file(features, filepath + '.features.json')
 
     with tf.io.TFRecordWriter(filepath) as tfrecord_write:
@@ -58,14 +82,32 @@ def deserialize_dataset(dataset, features):
     return dataset.map(features.deserialize_example)
 
 # %%
-def load_tfrecord(tfrecord_file, features_file=None, deserialize=True):
-    dataset = tf.data.TFRecordDataset([tfrecord_file])
+def load_tfrecord(tfrecords, features_file=None, deserialize=True, shuffle=None):
+    if isinstance(tfrecords, str):
+        # backward compatibility, accept a single tfrecord file instead of a list of tfrecord files
+        tfrecords = [tfrecords]
+    dataset = tf.data.Dataset.from_tensor_slices(tfrecords)
+    dataset = dataset.interleave(lambda fp: tf.data.TFRecordDataset(fp), cycle_length=1, block_length=1, num_parallel_calls=tf.data.AUTOTUNE)
 
+    if shuffle is not None:
+        # shuffle examples before deserializing
+        assert isinstance(shuffle, int)
+        dataset = dataset.shuffle(shuffle)
+
+    # optimize IO
+    dataset = dataset.prefetch(tf.data.AUTOTUNE)
+
+    # desrialize examples using feature specification in auxiliary file
     if deserialize:
         if features_file is None:
-            features_file = tfrecord_file + '.features.json'
+            # if list of tfrecords is supplied but no features file, use features file of first tfrecord - this must exist
+            features_file = tfrecords[0] + '.features.json'
         features = features_from_json_file(features_file)
-        dataset = deserialize_dataset(dataset, features)
+
+        dataset = dataset.map(features.deserialize_example, num_parallel_calls=tf.data.AUTOTUNE)
+    
+    # optimize IO
+    dataset = dataset.prefetch(tf.data.AUTOTUNE)
 
     return dataset
 
@@ -141,3 +183,34 @@ def better_py_function_kwargs(Tout, numpy=True, decode_bytes=True):
 # %%
 def multi_hot(x, depth):
     return tf.reduce_sum(tf.one_hot(x, depth=depth, dtype=tf.int64), axis=0)
+
+# %%
+def estimate_record_size(tfrecords, take=None):
+    """
+    Estimate mean and standard deviation of TFRecord record sizes in bytes.
+    """
+
+    dataset = load_tfrecord(tfrecords, deserialize=False)
+    if take is not None:
+        dataset = dataset.take(take)
+
+    sizes = []
+    print('Estimating record size...', file=sys.stderr)
+    for record in tqdm.tqdm(dataset.as_numpy_iterator()):
+        sizes.append(tf.cast(sys.getsizeof(record), dtype=tf.float32))
+    return tf.math.reduce_mean(sizes), tf.math.reduce_std(sizes)
+
+# %%
+def get_max_buffer_size_for_target_memory(record_size_mean, record_size_std, memory_in_mb=1024):
+    """
+    Estimate the maximum viable buffer sizes for a given memory budget. 
+    """
+    return int(1000*1000*memory_in_mb / (record_size_mean + 2*record_size_std))
+
+# %%
+def estimate_max_buffer_size(tfrecords, memory_in_mb=1024, take=None):
+    """
+    Estimate the maximum viable buffer sizes for a given memory budget. 
+    """
+    record_size_mean, record_size_std = estimate_record_size(tfrecords, take=take)
+    return get_max_buffer_size_for_target_memory(record_size_mean, record_size_std, memory_in_mb)

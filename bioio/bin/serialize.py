@@ -1,3 +1,4 @@
+
 # %%
 import os
 
@@ -13,11 +14,12 @@ from bioio.tf.utils import dataset_to_tensor_features, features_to_json_file, se
 @click.argument('biospec')
 @click.option('--gzip', is_flag=True, default=False)
 @click.option('--gzip-compression-level', type=int, default=None)
-@click.option('--encoding', type=str, default=None)
+@click.option('--encoding', type=str, default='bytes')
 @click.option('-d', '--directory', type=str, default=None)
 @click.option('-t', '--out-tfrecord', required=True, type=str)
 @click.option('-f', '--out-features', type=str, default=None)
-def main(biospec, gzip, gzip_compression_level, encoding, out_tfrecord, out_features, directory):
+@click.option('--just-write-features', is_flag=True, default=False, help='Just write features and exit.')
+def main(biospec, gzip, gzip_compression_level, encoding, out_tfrecord, out_features, directory, just_write_features):
     if directory is not None:
         # change working directory (all relative paths in biospec.yml will be relative to this directory)
         if not os.path.isdir(directory):
@@ -26,6 +28,17 @@ def main(biospec, gzip, gzip_compression_level, encoding, out_tfrecord, out_feat
 
     dataset = load_biospec(biospec)
     print(dataset.element_spec)
+
+    features = dataset_to_tensor_features(dataset, encoding=encoding)
+
+    # write features spec to json file
+    if out_features is None:
+        out_features = out_tfrecord + '.features.json'
+    features_to_json_file(features, out_features)
+
+    if just_write_features:
+        # just write features and exit
+        return
     
     # compress tfrecords to gzip, if flag '--gzip' is set
     tfrecord_options = tf.io.TFRecordOptions(
@@ -38,13 +51,6 @@ def main(biospec, gzip, gzip_compression_level, encoding, out_tfrecord, out_feat
     cardinality = int(cardinality) if cardinality > 0 else None
 
     with tf.io.TFRecordWriter(out_tfrecord, tfrecord_options) as tf_writer, tqdm.tqdm(total=cardinality) as pbar:
-        features = dataset_to_tensor_features(dataset, encoding=encoding)
-
-        # write features spec to json file
-        if out_features is None:
-            out_features = out_tfrecord.removesuffix('.gz') + '.features.json'
-        features_to_json_file(features, out_features)
-
         # use features to serialize examples to binary string
         serialized_dataset = serialize_dataset(dataset, features)
 
