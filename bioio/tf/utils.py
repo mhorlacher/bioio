@@ -69,12 +69,15 @@ def serialize_dataset(dataset, features):
         yield features.serialize_example(tf.nest.map_structure(lambda e: e.numpy(), example))
 
 # %%
-def dataset_to_tfrecord(dataset, filepath, encoding='bytes'):
+def dataset_to_tfrecord(dataset, filepath, encoding='bytes', pbar=False):
     features = dataset_to_tensor_features(dataset, encoding=encoding)
     features_to_json_file(features, filepath + '.features.json')
 
     with tf.io.TFRecordWriter(filepath) as tfrecord_write:
-        for serialized_example in serialize_dataset(dataset, features):
+        dataset = serialize_dataset(dataset, features)
+        if pbar:
+            dataset = tqdm.tqdm(dataset)
+        for serialized_example in dataset:
             tfrecord_write.write(serialized_example)
 
 # %%
@@ -182,7 +185,7 @@ def better_py_function_kwargs(Tout, numpy=True, decode_bytes=True):
 
 # %%
 def multi_hot(x, depth):
-    return tf.reduce_sum(tf.one_hot(x, depth=depth, dtype=tf.int64), axis=0)
+    return tf.reduce_sum(tf.one_hot(x, depth=depth, dtype=tf.int64), axis=-2)
 
 # %%
 def estimate_record_size(tfrecords, take=None):

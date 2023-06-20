@@ -1,7 +1,7 @@
 # %%
 import click
 
-from . import count
+from . import count, filter_regex
 
 # %%
 @click.group()
@@ -10,6 +10,7 @@ def main():
 
 # %%
 main.add_command(count.main, name='count')
+main.add_command(filter_regex.main, name='filter-regex')
 
 # %%
 if __name__ == '__main__':
