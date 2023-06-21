@@ -1,0 +1,16 @@
+version: 0.1.0
+
+source:
+  !PyIterable &fasta
+    object: bioio.dataspec.sources.FastaIterable
+    args:
+      filepath: ./example.fasta
+
+data:
+  # sequence: 
+  #     *fasta
+  sequence_onehot:
+      !Transform
+        object: bioio.dataspec.transforms.misc.sequence2onehot
+        input:
+          *fasta

@@ -5,3 +5,4 @@ pandas
 click
 tqdm
 pyyaml
+biopython

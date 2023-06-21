@@ -1,0 +1,21 @@
+{
+  "type": "tensorflow_datasets.core.features.features_dict.FeaturesDict",
+  "content": {
+    "features": {
+      "sequence_onehot": {
+        "pythonClassName": "tensorflow_datasets.core.features.tensor_feature.Tensor",
+        "tensor": {
+          "shape": {
+            "dimensions": [
+              "-1",
+              "-1"
+            ]
+          },
+          "dtype": "float32",
+          "encoding": "bytes"
+        }
+      }
+    }
+  },
+  "proto_cls": "tensorflow_datasets.FeaturesDict"
+}
