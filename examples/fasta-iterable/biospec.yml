@@ -25,7 +25,9 @@ data:
             idx_key: 'sequence'
           map:
             - !Transform
-              object: bioio.dataspec.transforms.misc.sequence2onehot
+              object: bioio.dataspec.transforms.misc.sequence2int
+              args:
+                vocab: 'RNA'
   outputs:
     labels:
         !Transform

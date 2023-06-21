@@ -5,6 +5,7 @@ import tensorflow as tf
 # Vocabulary for mapping characters (e.g. bases) to integers
 sequence2int_mapping = {
     'DNA': tf.keras.layers.StringLookup(vocabulary=['A', 'C', 'G', 'T'], encoding=None, oov_token='N', num_oov_indices=1),
+    'RNA': tf.keras.layers.StringLookup(vocabulary=['A', 'C', 'G', 'U'], encoding=None, oov_token='N', num_oov_indices=1),
 }
 
 # %%
