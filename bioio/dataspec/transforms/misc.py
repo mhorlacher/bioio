@@ -22,3 +22,11 @@ def sequence2onehot(sequence, vocab='DNA'):
     """
 
     return tf.one_hot(sequence2int(sequence, vocab), depth=len(sequence2int_mapping[vocab].input_vocabulary))
+
+# %%
+class Select:
+    def __init__(self, idx_key):
+        self._idx_key = idx_key
+
+    def __call__(self, example):
+        return example[self._idx_key]

@@ -7,10 +7,39 @@ source:
       filepath: ./example.fasta
 
 data:
-  # sequence: 
-  #     *fasta
-  sequence_onehot:
+  meta:
+    header: 
       !Transform
-        object: bioio.dataspec.transforms.misc.sequence2onehot
+        object: bioio.dataspec.transforms.misc.Select
         input:
           *fasta
+        args:
+          idx_key: 'header'
+  inputs: 
+    sequence:
+        !Transform
+          object: bioio.dataspec.transforms.misc.Select
+          input:
+            *fasta
+          args:
+            idx_key: 'sequence'
+          map:
+            - !Transform
+              object: bioio.dataspec.transforms.misc.sequence2onehot
+  outputs:
+    labels:
+        !Transform
+          object: bioio.dataspec.transforms.misc.Select
+          input:
+            *fasta
+          args:
+            idx_key: 'header'
+          map:
+            - !Transform
+              object: bioio.dataspec.transforms.fasta.FastaHeaderSparseLabelsFromStrings
+              args:
+                labels_filepath: example.labels.txt
+                column: 1
+                sep: ','
+
+# FastaHeaderSparseLabelsFromStrings

@@ -39,3 +39,22 @@ class Fasta():
 
     def __call__(self, example):
         return better_py_function_kwargs(Tout=self.dtype)(self.fetch)(example)
+
+# %%
+class FastaHeaderSparseLabelsFromStrings:
+    """
+    Given a txt file with one label per line, creates a lookup table that maps labels to integers. 
+    """
+
+    def __init__(self, labels_filepath, column=1, sep=','):
+        self._column = column
+        self._sep = sep
+        self._label_lookup = self.load_labels_to_lookup_table(labels_filepath)
+
+    def load_labels_to_lookup_table(self, filepath):
+        with open(filepath, 'r') as f:
+            return tf.keras.layers.StringLookup(vocabulary=[line.strip() for line in f.readlines()], encoding=None, num_oov_indices=1)
+
+    def __call__(self, header):
+        labels = tf.strings.split(tf.strings.split(header, sep=' ')[self._column], sep=self._sep)
+        return self._label_lookup(labels) - 1

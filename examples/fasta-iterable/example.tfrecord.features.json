@@ -2,17 +2,58 @@
   "type": "tensorflow_datasets.core.features.features_dict.FeaturesDict",
   "content": {
     "features": {
-      "sequence_onehot": {
-        "pythonClassName": "tensorflow_datasets.core.features.tensor_feature.Tensor",
-        "tensor": {
-          "shape": {
-            "dimensions": [
-              "-1",
-              "-1"
-            ]
-          },
-          "dtype": "float32",
-          "encoding": "bytes"
+      "meta": {
+        "pythonClassName": "tensorflow_datasets.core.features.features_dict.FeaturesDict",
+        "featuresDict": {
+          "features": {
+            "header": {
+              "pythonClassName": "tensorflow_datasets.core.features.tensor_feature.Tensor",
+              "tensor": {
+                "shape": {},
+                "dtype": "string",
+                "encoding": "none"
+              }
+            }
+          }
+        }
+      },
+      "inputs": {
+        "pythonClassName": "tensorflow_datasets.core.features.features_dict.FeaturesDict",
+        "featuresDict": {
+          "features": {
+            "sequence": {
+              "pythonClassName": "tensorflow_datasets.core.features.tensor_feature.Tensor",
+              "tensor": {
+                "shape": {
+                  "dimensions": [
+                    "-1",
+                    "-1"
+                  ]
+                },
+                "dtype": "float32",
+                "encoding": "bytes"
+              }
+            }
+          }
+        }
+      },
+      "outputs": {
+        "pythonClassName": "tensorflow_datasets.core.features.features_dict.FeaturesDict",
+        "featuresDict": {
+          "features": {
+            "labels": {
+              "pythonClassName": "tensorflow_datasets.core.features.tensor_feature.Tensor",
+              "tensor": {
+                "shape": {
+                  "dimensions": [
+                    "-1"
+                  ]
+                },
+                "dtype": "int64",
+                "encoding": "bytes"
+              }
+            }
+          }
         }
       }
     }
