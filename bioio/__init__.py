@@ -12,5 +12,5 @@ from absl import logging as absl_logging
 absl_logging.set_verbosity(absl_logging.ERROR)
 
 # %%
-from . import tf#, torch
+from . import tf, tfds #, torch
 from bioio.dataspec import load_biospec
