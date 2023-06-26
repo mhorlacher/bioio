@@ -4,7 +4,7 @@ import tensorflow_datasets as tfds
 
 # %%
 class SparseTensor(tfds.features.FeatureConnector):
-    def __init__(self, dtype):
+    def __init__(self, dtype, **kwargs):
         self.dtype = dtype
         self._doc = tfds.features.Documentation()
 
@@ -13,7 +13,7 @@ class SparseTensor(tfds.features.FeatureConnector):
                 'indices': tfds.features.Tensor(shape=(None, None), dtype=tf.int64, encoding='bytes'),
                 'values': tfds.features.Tensor(shape=(None, ), dtype=dtype),
                 'dense_shape': tfds.features.Tensor(shape=(None, ), dtype=tf.int64),
-            }
+            },
         )
 
     def _cast_to_numpy(self, x):

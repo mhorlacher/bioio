@@ -6,6 +6,8 @@ import tqdm
 import tensorflow as tf
 import tensorflow_datasets as tfds
 
+from bioio.tfds import features as bio_features
+
 # %%
 # def get_structure_types(structure):
 #     structure_tensor = tf.nest.map_structure(tf.constant, structure)
@@ -16,10 +18,23 @@ def get_structure_signature(structure):
     return tf.nest.map_structure(lambda x: tf.TensorSpec(shape=x.shape, dtype=x.dtype, name=None), structure_tensor)
 
 # %%
+def _obj_to_spec(obj):
+    if not isinstance(obj, (tf.Tensor, tf.SparseTensor)):
+        obj = tf.convert_to_tensor(obj)
+
+    if isinstance(obj, tf.Tensor):
+        return tf.TensorSpec(shape=[None]*len(obj.shape), dtype=obj.dtype, name=None)
+    elif isinstance(obj, tf.SparseTensor):
+        return tf.SparseTensorSpec(shape=(None, ), dtype=obj.dtype)
+    else:
+        raise ValueError('Unsupported type: {}'.format(type(obj)))
+
+# %%
 def get_generalized_structure_signature(structure):
-    structure_tensor = tf.nest.map_structure(tf.convert_to_tensor, structure)
+    # structure_tensor = tf.nest.map_structure(tf.convert_to_tensor, structure)
     # print(structure_tensor)
-    return tf.nest.map_structure(lambda x: tf.TensorSpec(shape=[None]*len(x.shape), dtype=x.dtype, name=None), structure_tensor)
+    # return tf.nest.map_structure(lambda x: tf.TensorSpec(shape=[None]*len(x.shape), dtype=x.dtype, name=None), structure_tensor)
+    return tf.nest.map_structure(_obj_to_spec, structure)
 
 # %%
 def dataset_from_iterable(py_iterable):
@@ -29,18 +44,16 @@ def dataset_from_iterable(py_iterable):
     return tf.data.Dataset.from_generator(lambda: iter(py_iterable), output_signature=output_signature)
 
 # %%
-def tensorspec_to_tensor_feature(tensorspec, encoding=None, **kwargs):
-    if tensorspec.dtype is tf.string or encoding is None:
+def spec_to_tensor_feature(spec, encoding=None, **kwargs):
+    if spec.dtype is tf.string or encoding is None:
         encoding = tfds.features.Encoding.NONE
-
-    return tfds.features.Tensor(shape=tensorspec.shape, dtype=tensorspec.dtype, encoding=encoding, **kwargs)
-
-# %%
-# def dataset_to_tensor_features(dataset, **kwargs):
-#     return tfds.features.FeaturesDict(
-#         tf.nest.map_structure(
-#             lambda spec: tensorspec_to_tensor_feature(spec, **kwargs), 
-#             dataset.element_spec))
+    
+    if isinstance(spec, tf.TensorSpec):
+        return tfds.features.Tensor(shape=spec.shape, dtype=spec.dtype, encoding=encoding, **kwargs)
+    elif isinstance(spec, tf.SparseTensorSpec):
+        return bio_features.SparseTensor(dtype=spec.dtype, encoding=encoding, **kwargs)
+    else:
+        raise ValueError('Unsupported type: {}'.format(type(spec)))
 
 # %%
 def dataset_to_tensor_features(dataset, **kwargs):
@@ -49,7 +62,7 @@ def dataset_to_tensor_features(dataset, **kwargs):
     first_example_signature = get_generalized_structure_signature(first_example)
     return tfds.features.FeaturesDict(
         tf.nest.map_structure(
-            lambda spec: tensorspec_to_tensor_feature(spec, **kwargs), 
+            lambda spec: spec_to_tensor_feature(spec, **kwargs), 
             first_example_signature))
 
 # %%
@@ -64,9 +77,19 @@ def features_from_json_file(filepath):
     return features
 
 # %%
+def _to_serializable_format(obj):
+    if isinstance(obj, tf.Tensor):
+        return obj.numpy()
+    elif isinstance(obj, tf.SparseTensor):
+        return obj
+    else:
+        raise ValueError('Unsupported type: {}'.format(type(obj)))
+
+# %%
 def serialize_dataset(dataset, features):
     for example in dataset:
-        yield features.serialize_example(tf.nest.map_structure(lambda e: e.numpy(), example))
+        # yield features.serialize_example(tf.nest.map_structure(lambda e: e.numpy(), example))
+        yield features.serialize_example(tf.nest.map_structure(_to_serializable_format, example))
 
 # %%
 def dataset_to_tfrecord(dataset, filepath, encoding='bytes', pbar=False):

@@ -17,7 +17,9 @@ data:
           args:
             bigwig_plus: bigWig/total/counts.pos.bw
             bigwig_minus: bigWig/total/counts.neg.bw
-            to_sparse: True
+          # map:
+          #   - !Transform
+          #       object: tensorflow.sparse.from_dense
       control:
         !Transform
           object: bioio.dataspec.transforms.StrandedBigWig

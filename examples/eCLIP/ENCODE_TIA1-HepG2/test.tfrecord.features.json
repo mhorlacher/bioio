@@ -1,0 +1,46 @@
+{
+  "type": "tensorflow_datasets.core.features.features_dict.FeaturesDict",
+  "content": {
+    "features": {
+      "outputs": {
+        "pythonClassName": "tensorflow_datasets.core.features.features_dict.FeaturesDict",
+        "featuresDict": {
+          "features": {
+            "SomeTask": {
+              "pythonClassName": "tensorflow_datasets.core.features.features_dict.FeaturesDict",
+              "featuresDict": {
+                "features": {
+                  "total": {
+                    "pythonClassName": "tensorflow_datasets.core.features.tensor_feature.Tensor",
+                    "tensor": {
+                      "shape": {
+                        "dimensions": [
+                          "-1"
+                        ]
+                      },
+                      "dtype": "float32",
+                      "encoding": "bytes"
+                    }
+                  },
+                  "control": {
+                    "pythonClassName": "tensorflow_datasets.core.features.tensor_feature.Tensor",
+                    "tensor": {
+                      "shape": {
+                        "dimensions": [
+                          "-1"
+                        ]
+                      },
+                      "dtype": "float32",
+                      "encoding": "bytes"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "proto_cls": "tensorflow_datasets.FeaturesDict"
+}
