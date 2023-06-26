@@ -16,13 +16,14 @@ def nan_to_zero(x):
 class BigWig():
     tensor_spec = tf.TensorSpec(shape=(None, ), dtype=tf.float32)
 
-    def __init__(self, bigwig_filepath) -> None:
+    def __init__(self, bigwig_filepath, to_sparse=False) -> None:
         try:
             import pyBigWig
         except ModuleNotFoundError:
             raise ModuleNotFoundError('Please install pyBigWig. See https://github.com/deeptools/pyBigWig')
 
         self._bigWig = pyBigWig.open(bigwig_filepath)
+        self.to_sparse = to_sparse
     
     def values(self, chrom, start, end, **kwargs):
         chrom, start, end = str(chrom), int(start), int(end) # not sure why this is needed, it worked locally with numpy.int32
@@ -33,16 +34,19 @@ class BigWig():
     def __call__(self, kwargs):
         tensor = better_py_function_kwargs(Tout=self.tensor_spec)(self.values)(kwargs)
         tensor.set_shape(self.tensor_spec.shape)
+        if self.to_sparse:
+            tensor = tf.sparse.from_dense(tensor)
         return tensor
 
 # %%
 class StrandedBigWig():
     tensor_spec = tf.TensorSpec(shape=(None, ), dtype=tf.float32)
 
-    def __init__(self, bigwig_plus, bigwig_minus, reverse_minus=True) -> None:
+    def __init__(self, bigwig_plus, bigwig_minus, reverse_minus=True, to_sparse=False) -> None:
         self._bigWig_plus = BigWig(bigwig_plus)
         self._bigWig_minus = BigWig(bigwig_minus)
         self.reverse_minus = reverse_minus
+        self.to_sparse = to_sparse
 
     def values(self, chrom, start, end, strand='+', **kwargs):
         """Returns values for a given range and strand. 
@@ -64,7 +68,7 @@ class StrandedBigWig():
         else:
             raise ValueError(f'Unexpected strand: {strand}')
 
-        values = bigWig.values(chrom, start, end)
+        values = bigWig.values(chrom, start, end, to_sparse=self.to_sparse)
 
         if strand == '-' and self.reverse_minus:
             values = list(reversed(values))
