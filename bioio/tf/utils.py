@@ -56,7 +56,7 @@ def spec_to_tensor_feature(spec, encoding=None, **kwargs):
         raise ValueError('Unsupported type: {}'.format(type(spec)))
 
 # %%
-def dataset_to_tensor_features(dataset, **kwargs):
+def dataset_to_features(dataset, **kwargs):
     first_example = next(iter(dataset))
     # first_example_signature = get_structure_signature(first_example)
     first_example_signature = get_generalized_structure_signature(first_example)
@@ -93,7 +93,7 @@ def serialize_dataset(dataset, features):
 
 # %%
 def dataset_to_tfrecord(dataset, filepath, encoding='bytes', pbar=False):
-    features = dataset_to_tensor_features(dataset, encoding=encoding)
+    features = dataset_to_features(dataset, encoding=encoding)
     features_to_json_file(features, filepath + '.features.json')
 
     with tf.io.TFRecordWriter(filepath) as tfrecord_write:
