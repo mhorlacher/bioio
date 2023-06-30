@@ -11,27 +11,15 @@
               "featuresDict": {
                 "features": {
                   "total": {
-                    "pythonClassName": "tensorflow_datasets.core.features.tensor_feature.Tensor",
+                    "pythonClassName": "bioio.tfds.features.SparseTensor",
                     "tensor": {
-                      "shape": {
-                        "dimensions": [
-                          "-1"
-                        ]
-                      },
-                      "dtype": "float32",
-                      "encoding": "bytes"
+                      "dtype": "float32"
                     }
                   },
                   "control": {
-                    "pythonClassName": "tensorflow_datasets.core.features.tensor_feature.Tensor",
+                    "pythonClassName": "bioio.tfds.features.SparseTensor",
                     "tensor": {
-                      "shape": {
-                        "dimensions": [
-                          "-1"
-                        ]
-                      },
-                      "dtype": "float32",
-                      "encoding": "bytes"
+                      "dtype": "float32"
                     }
                   }
                 }
