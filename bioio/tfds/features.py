@@ -2,18 +2,21 @@
 import tensorflow as tf
 import tensorflow_datasets as tfds
 
+from tensorflow_datasets.core.proto import feature_pb2
+from tensorflow_datasets.core.features import feature as feature_lib
+
 # %%
 class SparseTensor(tfds.features.FeatureConnector):
-    def __init__(self, dtype):
-        self.dtype = dtype
+    def __init__(self, dtype, **kwargs):
+        self._dtype = dtype
         self._doc = tfds.features.Documentation()
 
         self._st_feature_dict = tfds.features.FeaturesDict(
             {
                 'indices': tfds.features.Tensor(shape=(None, None), dtype=tf.int64, encoding='bytes'),
-                'values': tfds.features.Tensor(shape=(None, ), dtype=dtype),
+                'values': tfds.features.Tensor(shape=(None, ), dtype=self._dtype),
                 'dense_shape': tfds.features.Tensor(shape=(None, ), dtype=tf.int64),
-            }
+            },
         )
 
     def _cast_to_numpy(self, x):
@@ -40,6 +43,19 @@ class SparseTensor(tfds.features.FeatureConnector):
 
     def get_tensor_info(self):
         return None
+    
+    # def to_json_content(self):
+    #     return self._st_feature_dict.to_json_content()
+
+    def to_json_content(self) -> feature_pb2.TensorFeature:
+        return feature_pb2.TensorFeature(
+            dtype=feature_lib.dtype_to_str(self._dtype),
+            # encoding=self._encoding.value,
+        )
+
+    @classmethod
+    def from_json_content(self, value):
+        return SparseTensor(dtype=feature_lib.dtype_from_str(value.dtype))
 
     def encode_example(self, example: tf.SparseTensor):
         example_as_dict = self._sparse_to_dict(example)

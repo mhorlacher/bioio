@@ -1,5 +1,7 @@
 applications/
 
+**/notebook.ipynb
+
 # Logs
 **/logs/
 

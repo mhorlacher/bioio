@@ -7,7 +7,7 @@ import tqdm
 import tensorflow as tf
 
 from bioio import load_biospec
-from bioio.tf.utils import dataset_to_tensor_features, features_to_json_file, serialize_dataset
+from bioio.tf.utils import dataset_to_features, features_to_json_file, serialize_dataset
 
 # %%
 @click.command()
@@ -29,7 +29,7 @@ def main(biospec, gzip, gzip_compression_level, encoding, out_tfrecord, out_feat
     dataset = load_biospec(biospec)
     print(dataset.element_spec)
 
-    features = dataset_to_tensor_features(dataset, encoding=encoding)
+    features = dataset_to_features(dataset, encoding=encoding)
 
     # write features spec to json file
     if out_features is None:
