@@ -7,7 +7,7 @@ with open('requirements.txt', 'r') as f:
 
 # %%
 setup(name='bioio',
-      version='0.2.0',
+      version='0.2.1',
       description='BioIO',
       url='http://github.com/mhorlacher/bioio',
       author='Marc Horlacher',
